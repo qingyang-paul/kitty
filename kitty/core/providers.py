@@ -11,7 +11,7 @@ from .config import load_global_config, load_workspace_config
 def get_provider_paths(workspace: Path) -> dict[str, Path]:
     """
     Return {provider_name: resolved_skills_dir} for the workspace.
-    Paths are deduplicated by resolved absolute path (gemini/codex share .agents/skills/).
+    Paths are deduplicated by resolved absolute path.
     """
     global_cfg = load_global_config()
     ws_cfg = load_workspace_config(workspace)
