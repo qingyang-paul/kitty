@@ -84,7 +84,7 @@ def _init_workspace() -> None:
     # Write workspace config if absent
     if not ws_cfg_path.exists():
         global_cfg = load_global_config()
-        ws_cfg = {"version": 1, "providers": global_cfg.get("default_providers", ["claude", "gemini"])}
+        ws_cfg = {"version": 1, "providers": global_cfg.get("default_providers", DEFAULT_GLOBAL_CONFIG["default_providers"])}
         save_workspace_config(workspace, ws_cfg)
         click.echo(f"Created .kitty/config.json")
 

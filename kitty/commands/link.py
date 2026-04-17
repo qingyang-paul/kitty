@@ -14,7 +14,7 @@ from ..core.providers import skill_link_paths
 
 @click.command("link")
 @click.argument("skill", required=False, default=None)
-@click.option("--provider", "-p", default=None, help="Only link for this provider (claude|gemini|codex).")
+@click.option("--provider", "-p", default=None, help="Only link for this provider.")
 @click.option("--force", is_flag=True, help="Overwrite wrong-target symlinks.")
 def cmd_link(skill: str | None, provider: str | None, force: bool) -> None:
     """Create symlinks for skill(s) in workspace provider directories."""
