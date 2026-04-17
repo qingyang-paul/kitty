@@ -15,7 +15,7 @@ DEFAULT_GLOBAL_CONFIG: dict[str, Any] = {
     "providers": {
         "claude": ".claude/skills",
         "gemini": ".agents/skills",
-        "codex": ".agents/skills",
+        "codex": ".codex/skills",
     },
     "default_providers": ["claude", "gemini"],
     "commit_author": {"name": "kitty", "email": "kitty@local"},
