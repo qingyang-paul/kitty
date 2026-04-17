@@ -18,7 +18,15 @@ from .link import _do_link
 @click.command("clone")
 @click.argument("skill")
 def cmd_clone(skill: str) -> None:
-    """First-time: fetch a skill from remote and link it to all workspace providers."""
+    """Fetch a skill from remote for the first time and link it to all workspace providers.
+
+    \b
+    Usage:
+      kitty clone <skill>      Download skill from remote and link it here
+    \b
+    Examples:
+      kitty clone code-review
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

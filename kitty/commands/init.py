@@ -23,7 +23,13 @@ from ..core.providers import get_provider_paths
 @click.command("init")
 @click.option("--global", "global_", is_flag=True, help="Initialize the global ~/.kitty/ store.")
 def cmd_init(global_: bool) -> None:
-    """Initialize Kitty environment (global store or workspace)."""
+    """Initialize Kitty environment (global store or workspace).
+
+    \b
+    Usage:
+      kitty init --global      Create ~/.kitty/ store (run once per machine)
+      kitty init               Set up .kitty/ config and provider dirs in this workspace
+    """
     if global_:
         _init_global()
     else:

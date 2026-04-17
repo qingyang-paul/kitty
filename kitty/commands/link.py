@@ -17,7 +17,21 @@ from ..core.providers import skill_link_paths
 @click.option("--provider", "-p", default=None, help="Only link for this provider.")
 @click.option("--force", is_flag=True, help="Overwrite wrong-target symlinks.")
 def cmd_link(skill: str | None, provider: str | None, force: bool) -> None:
-    """Create symlinks for skill(s) in workspace provider directories."""
+    """Create symlinks for skill(s) in workspace provider directories.
+
+    \b
+    Usage:
+      kitty link               Link all global-store skills to this workspace
+      kitty link <skill>       Link a specific skill
+      kitty link <skill> -p <provider>   Link only for one provider
+      kitty link <skill> --force         Overwrite wrong-target symlinks
+    \b
+    Examples:
+      kitty link
+      kitty link code-review
+      kitty link code-review -p codex
+      kitty link code-review --force
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

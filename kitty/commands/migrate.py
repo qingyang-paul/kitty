@@ -29,7 +29,20 @@ def _dir_hash(path: Path) -> str:
 @click.argument("skill")
 @click.option("--from", "from_provider", default=None, help="Which provider's directory to use as source.")
 def cmd_migrate(skill: str, from_provider: str | None) -> None:
-    """Migrate an existing real skill directory into the global store."""
+    """Migrate an existing real skill directory into the global store.
+
+    Copies the directory to ~/.kitty/skills/<skill>/, replaces it with a symlink,
+    then links the skill for all other providers.
+
+    \b
+    Usage:
+      kitty migrate <skill>                  Auto-detect source provider
+      kitty migrate <skill> --from <provider>  Use a specific provider as source
+    \b
+    Examples:
+      kitty migrate code-review
+      kitty migrate code-review --from claude
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

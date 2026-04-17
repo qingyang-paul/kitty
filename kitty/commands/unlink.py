@@ -14,7 +14,17 @@ from ..core.providers import skill_link_paths
 @click.argument("skill")
 @click.option("--provider", "-p", default=None, help="Only unlink from this provider.")
 def cmd_unlink(skill: str, provider: str | None) -> None:
-    """Remove symlinks for a skill from workspace provider directories."""
+    """Remove symlinks for a skill from workspace provider directories.
+
+    \b
+    Usage:
+      kitty unlink <skill>              Remove symlinks from all providers
+      kitty unlink <skill> -p <provider>  Remove symlink from one provider only
+    \b
+    Examples:
+      kitty unlink code-review
+      kitty unlink code-review -p claude
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

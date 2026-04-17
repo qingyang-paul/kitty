@@ -32,7 +32,19 @@ def _build_commit_message(skill: str, workspace: Path, dirty_files: list[str]) -
 @click.argument("skill", required=False, default=None)
 @click.option("--force", is_flag=True, help="Force push to remote (uses --force-with-lease).")
 def cmd_push(skill: str | None, force: bool) -> None:
-    """Commit changes and push to remote."""
+    """Commit changes and push to remote.
+
+    \b
+    Usage:
+      kitty push               Commit and push all modified skills
+      kitty push <skill>       Commit and push a specific skill
+      kitty push <skill> --force   Force push (uses --force-with-lease)
+    \b
+    Examples:
+      kitty push
+      kitty push code-review
+      kitty push code-review --force
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

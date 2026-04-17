@@ -11,7 +11,17 @@ from ..core.git import fetch as git_fetch, is_initialized, log_ahead
 @click.command("fetch")
 @click.argument("skill", required=False, default=None)
 def cmd_fetch(skill: str | None) -> None:
-    """Safely download remote updates without touching the working tree."""
+    """Safely download remote updates without touching the working tree.
+
+    \b
+    Usage:
+      kitty fetch              Fetch all remote updates
+      kitty fetch <skill>      Fetch updates for a specific skill only
+    \b
+    Examples:
+      kitty fetch
+      kitty fetch code-review
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

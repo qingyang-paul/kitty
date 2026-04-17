@@ -33,7 +33,14 @@ def _read_frontmatter(skill_path: Path) -> dict[str, str]:
 @click.command("list")
 @click.argument("region", required=False, default="local", type=click.Choice(["local", "remote"]))
 def cmd_list(region: str) -> None:
-    """List tracked skills (local or remote)."""
+    """List tracked skills (local or remote).
+
+    \b
+    Usage:
+      kitty list               List skills in the local ~/.kitty/ store (default)
+      kitty list local         Same as above
+      kitty list remote        List skills available on the remote
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

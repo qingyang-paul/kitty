@@ -21,7 +21,17 @@ from ..core.providers import get_provider_paths
 @click.command("status")
 @click.argument("skill", required=False, default=None)
 def cmd_status(skill: str | None) -> None:
-    """Show consistency status: uncommitted changes, symlink health, remote delta."""
+    """Show consistency status: uncommitted changes, symlink health, remote delta.
+
+    \b
+    Usage:
+      kitty status             Show status for all skills
+      kitty status <skill>     Show status for a specific skill
+    \b
+    Examples:
+      kitty status
+      kitty status code-review
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

@@ -30,7 +30,17 @@ def _auto_snapshot(skill: str) -> bool:
 @click.command("checkout")
 @click.argument("skill")
 def cmd_checkout(skill: str) -> None:
-    """Overwrite local skill with the latest remote version (destructive)."""
+    """Overwrite local skill with the latest remote version (destructive).
+
+    Uncommitted local changes are auto-snapshotted to a branch before overwriting.
+
+    \b
+    Usage:
+      kitty checkout <skill>   Pull remote version and overwrite local copy
+    \b
+    Examples:
+      kitty checkout code-review
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)

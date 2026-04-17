@@ -24,7 +24,16 @@ def validate_skill_name(name: str) -> None:
 @click.command("new")
 @click.argument("skill")
 def cmd_new(skill: str) -> None:
-    """Create a new skill in the global store and link it to workspace providers."""
+    """Create a new skill in the global store and link it to workspace providers.
+
+    \b
+    Usage:
+      kitty new <skill>        Scaffold skill in ~/.kitty/skills/<skill>/ and link it here
+    \b
+    Examples:
+      kitty new code-review
+      kitty new data-analysis
+    """
     if not is_initialized():
         click.echo("Global store not found. Run `kitty init --global` first.", err=True)
         raise SystemExit(1)
