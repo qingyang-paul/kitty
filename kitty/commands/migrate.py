@@ -13,6 +13,7 @@ from ..core.config import KITTY_HOME, find_workspace_root
 from ..core.git import add_and_commit, is_initialized
 from ..core.symlinks import LinkState, canonical_skill_path, create_symlink, inspect_link
 from ..core.providers import get_provider_paths, skill_link_paths
+from ..core.params import SKILL, PROVIDER
 
 
 def _dir_hash(path: Path) -> str:
@@ -26,8 +27,8 @@ def _dir_hash(path: Path) -> str:
 
 
 @click.command("migrate")
-@click.argument("skill")
-@click.option("--from", "from_provider", default=None, help="Which provider's directory to use as source.")
+@click.argument("skill", type=SKILL)
+@click.option("--from", "from_provider", default=None, type=PROVIDER, help="Which provider's directory to use as source.")
 def cmd_migrate(skill: str, from_provider: str | None) -> None:
     """Migrate an existing real skill directory into the global store.
 

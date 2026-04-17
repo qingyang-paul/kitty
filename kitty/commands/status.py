@@ -16,10 +16,11 @@ from ..core.git import (
 )
 from ..core.symlinks import LinkState, inspect_link
 from ..core.providers import get_provider_paths
+from ..core.params import SKILL
 
 
 @click.command("status")
-@click.argument("skill", required=False, default=None)
+@click.argument("skill", required=False, default=None, type=SKILL)
 def cmd_status(skill: str | None) -> None:
     """Show consistency status: uncommitted changes, symlink health, remote delta.
 

@@ -6,10 +6,11 @@ import click
 
 from ..core.config import KITTY_HOME, has_remote
 from ..core.git import fetch as git_fetch, is_initialized, log_ahead
+from ..core.params import SKILL
 
 
 @click.command("fetch")
-@click.argument("skill", required=False, default=None)
+@click.argument("skill", required=False, default=None, type=SKILL)
 def cmd_fetch(skill: str | None) -> None:
     """Safely download remote updates without touching the working tree.
 

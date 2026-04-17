@@ -7,6 +7,7 @@ from pathlib import Path
 import click
 
 from ..core.config import KITTY_HOME, find_workspace_root, has_remote
+from ..core.params import SKILL
 from ..core.git import (
     add_and_commit,
     diff_remote,
@@ -29,7 +30,7 @@ def _build_commit_message(skill: str, workspace: Path, dirty_files: list[str]) -
 
 
 @click.command("push")
-@click.argument("skill", required=False, default=None)
+@click.argument("skill", required=False, default=None, type=SKILL)
 @click.option("--force", is_flag=True, help="Force push to remote (uses --force-with-lease).")
 def cmd_push(skill: str | None, force: bool) -> None:
     """Commit changes and push to remote.

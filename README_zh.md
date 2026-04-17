@@ -11,7 +11,8 @@
 | Agent | Skills 路径 |
 |---|---|
 | Claude | `.claude/skills/` |
-| Gemini / Codex | `.agents/skills/` |
+| Gemini | `.agents/skills/` |
+| Codex | `.codex/skills/` |
 
 这带来了一个持续的麻烦：你在某个项目里迭代优化了一个 skill，但另一个项目的 Claude 还在用老版本；Gemini 和 Claude 各自有一份副本，内容开始漂移；换到新机器后得手动把所有 skill 重新配置一遍。
 
@@ -81,6 +82,32 @@ source ~/.zshrc   # 或 source ~/.bashrc
 
 ```bash
 kitty --help
+```
+
+### Shell 命令补全（可选）
+
+kitty 支持对 skill 名称和 provider 名称进行 Tab 自动补全。
+
+**zsh**
+```bash
+mkdir -p ~/.zfunc
+_KITTY_COMPLETE=zsh_source kitty > ~/.zfunc/_kitty
+echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
+echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**bash**
+```bash
+mkdir -p ~/.bash_completion.d
+_KITTY_COMPLETE=bash_source kitty > ~/.bash_completion.d/kitty
+echo '[[ -f ~/.bash_completion.d/kitty ]] && source ~/.bash_completion.d/kitty' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**fish**
+```bash
+_KITTY_COMPLETE=fish_source kitty > ~/.config/fish/completions/kitty.fish
 ```
 
 > **注意**：macOS 自带一个叫 `kitty` 的终端模拟器，如果发生冲突，可以把 `~/.local/bin` 放在 PATH 最前面（如上），或者将本工具的入口点改名为 `sk`（修改 `pyproject.toml` 中的 `[project.scripts]`）。
@@ -174,13 +201,13 @@ kitty init                   # 初始化当前 workspace（幂等，在项目根
 
 ```bash
 kitty new <skill>            # 创建新 skill 并链接到所有 provider
-kitty link [<skill>]         # 为已有 skill 创建 symlink
-  --provider claude|gemini   # 只链接某个 provider
-  --force                    # 覆盖指向错误的 symlink
-kitty unlink <skill>         # 删除 symlink（不删除 skill 本体）
-  --provider claude|gemini   # 只从某个 provider 卸载
-kitty migrate <skill>        # 将真实目录迁移进全局存储（在项目根目录执行）
-  --from claude|gemini       # 当多个 provider 内容不一致时指定权威来源
+kitty link [<skill>]                   # 为已有 skill 创建 symlink
+  --provider claude|gemini|codex       # 只链接某个 provider
+  --force                              # 覆盖指向错误的 symlink
+kitty unlink <skill>                   # 删除 symlink（不删除 skill 本体）
+  --provider claude|gemini|codex       # 只从某个 provider 卸载
+kitty migrate <skill>                  # 将真实目录迁移进全局存储（在项目根目录执行）
+  --from claude|gemini|codex           # 当多个 provider 内容不一致时指定权威来源
 ```
 
 ### 审查
@@ -277,9 +304,9 @@ kitty push data-analysis
   "providers": {
     "claude": ".claude/skills",
     "gemini": ".agents/skills",
-    "codex":  ".agents/skills"
+    "codex":  ".codex/skills"
   },
-  "default_providers": ["claude", "gemini"],
+  "default_providers": ["claude", "gemini", "codex"],
   "commit_author": { "name": "kitty", "email": "kitty@local" }
 }
 ```

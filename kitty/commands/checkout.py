@@ -5,6 +5,7 @@ from __future__ import annotations
 import click
 
 from ..core.config import KITTY_HOME
+from ..core.params import SKILL
 from ..core.git import (
     add_and_commit,
     checkout_from_remote,
@@ -28,7 +29,7 @@ def _auto_snapshot(skill: str) -> bool:
 
 
 @click.command("checkout")
-@click.argument("skill")
+@click.argument("skill", type=SKILL)
 def cmd_checkout(skill: str) -> None:
     """Overwrite local skill with the latest remote version (destructive).
 

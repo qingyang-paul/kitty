@@ -10,11 +10,12 @@ from ..core.config import KITTY_HOME, find_workspace_root
 from ..core.git import is_initialized
 from ..core.symlinks import LinkState, canonical_skill_path, create_symlink, inspect_link, replace_symlink
 from ..core.providers import skill_link_paths
+from ..core.params import SKILL, PROVIDER
 
 
 @click.command("link")
-@click.argument("skill", required=False, default=None)
-@click.option("--provider", "-p", default=None, help="Only link for this provider.")
+@click.argument("skill", required=False, default=None, type=SKILL)
+@click.option("--provider", "-p", default=None, type=PROVIDER, help="Only link for this provider.")
 @click.option("--force", is_flag=True, help="Overwrite wrong-target symlinks.")
 def cmd_link(skill: str | None, provider: str | None, force: bool) -> None:
     """Create symlinks for skill(s) in workspace provider directories.

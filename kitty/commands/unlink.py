@@ -8,11 +8,12 @@ from ..core.config import find_workspace_root
 from ..core.git import is_initialized
 from ..core.symlinks import LinkState, inspect_link, remove_symlink
 from ..core.providers import skill_link_paths
+from ..core.params import SKILL, PROVIDER
 
 
 @click.command("unlink")
-@click.argument("skill")
-@click.option("--provider", "-p", default=None, help="Only unlink from this provider.")
+@click.argument("skill", type=SKILL)
+@click.option("--provider", "-p", default=None, type=PROVIDER, help="Only unlink from this provider.")
 def cmd_unlink(skill: str, provider: str | None) -> None:
     """Remove symlinks for a skill from workspace provider directories.
 

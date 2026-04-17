@@ -11,7 +11,8 @@ In modern AI development, the same set of skills often needs to serve multiple A
 | Agent | Skills Path |
 |---|---|
 | Claude | `.claude/skills/` |
-| Gemini / Codex | `.agents/skills/` |
+| Gemini | `.agents/skills/` |
+| Codex | `.codex/skills/` |
 
 This creates a persistent problem: you update and optimize a skill in one project, but another project's Claude is still using the old version; Gemini and Claude each have their own copy, and the content starts to drift; when moving to a new machine, you have to manually reconfigure all skills.
 
@@ -81,6 +82,32 @@ Verify installation:
 
 ```bash
 kitty --help
+```
+
+### Shell Tab Completion (Optional)
+
+kitty supports tab completion for skill names and provider names.
+
+**zsh**
+```bash
+mkdir -p ~/.zfunc
+_KITTY_COMPLETE=zsh_source kitty > ~/.zfunc/_kitty
+echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
+echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**bash**
+```bash
+mkdir -p ~/.bash_completion.d
+_KITTY_COMPLETE=bash_source kitty > ~/.bash_completion.d/kitty
+echo '[[ -f ~/.bash_completion.d/kitty ]] && source ~/.bash_completion.d/kitty' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**fish**
+```bash
+_KITTY_COMPLETE=fish_source kitty > ~/.config/fish/completions/kitty.fish
 ```
 
 > **Note**: macOS comes with a terminal emulator also named `kitty`. If a conflict occurs, place `~/.local/bin` at the front of your PATH (as shown above), or rename the entry point of this tool to `sk` (by modifying `[project.scripts]` in `pyproject.toml`).
@@ -174,13 +201,13 @@ kitty init                   # Initialize current workspace (Idempotent, run in 
 
 ```bash
 kitty new <skill>            # Create new skill and link to all providers
-kitty link [<skill>]         # Create symlinks for an existing skill
-  --provider claude|gemini   # Link only to a specific provider
-  --force                    # Overwrite incorrect symlinks
-kitty unlink <skill>         # Remove symlinks (does not delete the skill itself)
-  --provider claude|gemini   # Uninstall only from a specific provider
-kitty migrate <skill>        # Migrate a real directory to global store (run in project root)
-  --from claude|gemini       # Specify authoritative source if providers differ
+kitty link [<skill>]              # Create symlinks for an existing skill
+  --provider claude|gemini|codex  # Link only to a specific provider
+  --force                         # Overwrite incorrect symlinks
+kitty unlink <skill>              # Remove symlinks (does not delete the skill itself)
+  --provider claude|gemini|codex  # Uninstall only from a specific provider
+kitty migrate <skill>             # Migrate a real directory to global store (run in project root)
+  --from claude|gemini|codex      # Specify authoritative source if providers differ
 ```
 
 ### Inspection
@@ -277,9 +304,9 @@ kitty push data-analysis
   "providers": {
     "claude": ".claude/skills",
     "gemini": ".agents/skills",
-    "codex":  ".agents/skills"
+    "codex":  ".codex/skills"
   },
-  "default_providers": ["claude", "gemini"],
+  "default_providers": ["claude", "gemini", "codex"],
   "commit_author": { "name": "kitty", "email": "kitty@local" }
 }
 ```
