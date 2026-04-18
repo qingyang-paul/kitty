@@ -10,7 +10,7 @@ from pathlib import Path
 import click
 
 from ..core.config import ensure_global_workspace, get_skills_dir, load_global_config
-from ..core.params import SKILL
+from ..core.params import complete_skill_names
 
 EDITOR_APP_MAP = {
     "typora": "Typora",
@@ -43,7 +43,7 @@ def _open_path(target_path: Path, editor: str | None) -> None:
 
 
 @click.command("edit")
-@click.argument("skill", type=SKILL)
+@click.argument("skill", type=click.STRING, shell_complete=complete_skill_names)
 @click.argument("editor", required=False, type=click.Choice(["typora", "antigravity"]))
 def cmd_edit(skill: str, editor: str | None) -> None:
     """Open one skill directory under ~/.kitty/skills with your editor."""

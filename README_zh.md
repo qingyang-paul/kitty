@@ -23,6 +23,12 @@ Kitty 把权威 skill 统一放在 `~/.kitty/skills/`，然后把内容**复制*
 - Python 3.9+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
+从 GitHub 安装：
+
+```bash
+uv tool install git+https://github.com/qingyang-paul/kitty.git
+```
+
 本地源码安装：
 
 ```bash
@@ -30,6 +36,51 @@ uv tool install .
 ```
 
 如有需要，请确保 `~/.local/bin` 在 `PATH` 中。
+
+## 更新 Kitty
+
+如果通过 GitHub 安装：
+
+```bash
+uv tool upgrade kitty
+```
+
+如果通过本地源码安装：
+
+```bash
+git pull
+uv tool install . --force
+```
+
+## Shell 自动补全
+
+`edit <skill>` 的 skill 名补全依赖 shell completion 配置。
+`distribute <skill>` 也会使用同样的已有 skill 补全能力。
+
+zsh:
+
+```bash
+mkdir -p ~/.zfunc
+_KITTY_COMPLETE=zsh_source kitty > ~/.zfunc/_kitty
+echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
+echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
+source ~/.zshrc
+```
+
+bash:
+
+```bash
+mkdir -p ~/.bash_completion.d
+_KITTY_COMPLETE=bash_source kitty > ~/.bash_completion.d/kitty
+echo '[[ -f ~/.bash_completion.d/kitty ]] && source ~/.bash_completion.d/kitty' >> ~/.bashrc
+source ~/.bashrc
+```
+
+fish:
+
+```bash
+_KITTY_COMPLETE=fish_source kitty > ~/.config/fish/completions/kitty.fish
+```
 
 ## 命令
 
@@ -70,6 +121,7 @@ kitty list
 
 - 打开 `~/.kitty/skills/<skill>` 目录进行编辑。
 - 不传 editor 时，读取 `config.json` 的 `default_editor`。
+- 完成 shell completion 配置后，skill 名支持 Tab 自动补全。
 
 ### `kitty distribute <skill>`
 

@@ -10,7 +10,7 @@ import click
 
 from ..core.config import ensure_global_workspace, get_skills_dir, load_manifest, save_manifest
 from ..core.hashing import hash_directory
-from ..core.params import SKILL
+from ..core.params import complete_skill_names
 from ..core.providers import get_provider_skill_paths
 
 
@@ -23,7 +23,7 @@ def _replace_with_copy(source_dir: Path, target_dir: Path) -> None:
 
 
 @click.command("distribute")
-@click.argument("skill", type=SKILL)
+@click.argument("skill", type=click.STRING, shell_complete=complete_skill_names)
 def cmd_distribute(skill: str) -> None:
     """Copy one skill from ~/.kitty/skills to all provider skill directories."""
     ensure_global_workspace()

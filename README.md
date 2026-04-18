@@ -23,13 +23,64 @@ Prerequisites:
 - Python 3.9+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-Install from source:
+Install from GitHub:
+
+```bash
+uv tool install git+https://github.com/qingyang-paul/kitty.git
+```
+
+Install from local source:
 
 ```bash
 uv tool install .
 ```
 
 If needed, ensure `~/.local/bin` is in `PATH`.
+
+## Update Kitty
+
+If installed from GitHub:
+
+```bash
+uv tool upgrade kitty
+```
+
+If installed from local source:
+
+```bash
+git pull
+uv tool install . --force
+```
+
+## Shell Completion
+
+`edit <skill>` skill-name completion requires shell completion to be enabled.
+`distribute <skill>` also uses the same existing-skill completion.
+
+zsh:
+
+```bash
+mkdir -p ~/.zfunc
+_KITTY_COMPLETE=zsh_source kitty > ~/.zfunc/_kitty
+echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
+echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
+source ~/.zshrc
+```
+
+bash:
+
+```bash
+mkdir -p ~/.bash_completion.d
+_KITTY_COMPLETE=bash_source kitty > ~/.bash_completion.d/kitty
+echo '[[ -f ~/.bash_completion.d/kitty ]] && source ~/.bash_completion.d/kitty' >> ~/.bashrc
+source ~/.bashrc
+```
+
+fish:
+
+```bash
+_KITTY_COMPLETE=fish_source kitty > ~/.config/fish/completions/kitty.fish
+```
 
 ## Commands
 
@@ -70,6 +121,7 @@ kitty list
 
 - Opens `~/.kitty/skills/<skill>` in your editor.
 - If editor arg is omitted, uses `default_editor` from `config.json`.
+- Skill name supports tab completion after shell completion setup.
 
 ### `kitty distribute <skill>`
 
