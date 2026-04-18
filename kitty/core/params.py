@@ -5,7 +5,7 @@ from __future__ import annotations
 import click
 from click.shell_completion import CompletionItem
 
-from .config import KITTY_HOME, load_global_config
+from .config import get_kitty_home
 
 
 class SkillParam(click.ParamType):
@@ -14,7 +14,7 @@ class SkillParam(click.ParamType):
     name = "skill"
 
     def shell_complete(self, ctx: click.Context, param: click.Parameter, incomplete: str) -> list[CompletionItem]:
-        skills_dir = KITTY_HOME / "skills"
+        skills_dir = get_kitty_home() / "skills"
         if not skills_dir.exists():
             return []
         return [
@@ -24,20 +24,4 @@ class SkillParam(click.ParamType):
         ]
 
 
-class ProviderParam(click.ParamType):
-    """Provider name with tab-completion from global config."""
-
-    name = "provider"
-
-    def shell_complete(self, ctx: click.Context, param: click.Parameter, incomplete: str) -> list[CompletionItem]:
-        cfg = load_global_config()
-        providers = cfg.get("providers", {}).keys()
-        return [
-            CompletionItem(name)
-            for name in sorted(providers)
-            if name.startswith(incomplete)
-        ]
-
-
 SKILL = SkillParam()
-PROVIDER = ProviderParam()

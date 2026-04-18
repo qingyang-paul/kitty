@@ -1,388 +1,116 @@
 # Kitty
 
-**Cross-Agent, Cross-Workspace AI Skill Version Manager**
+Copy-based AI skill manager with one canonical source.
 
----
+Kitty keeps all canonical skills in `~/.kitty/skills/`, then distributes **copies** to:
 
-## Background
+- `~/.claude/skills/`
+- `~/.agents/skills/`
+- `~/.codex/skills/`
 
-In modern AI development, the same set of skills often needs to serve multiple Agents simultaneously:
+This version does not use symlinks and does not depend on per-project workspaces.
 
-| Agent | Skills Path |
-|---|---|
-| Claude | `.claude/skills/` |
-| Gemini | `.agents/skills/` |
-| Codex | `.codex/skills/` |
+## Core Model
 
-This creates a persistent problem: you update and optimize a skill in one project, but another project's Claude is still using the old version; Gemini and Claude each have their own copy, and the content starts to drift; when moving to a new machine, you have to manually reconfigure all skills.
-
-Kitty solves this.
-
----
-
-## Design Concept
-
-**Single Copy + Symlink + Git**
-
-```
-~/.kitty/skills/data-analysis/   ← Single source of truth (managed by git)
-        │
-        ├──→ ~/example_project/.claude/skills/data-analysis   (symlink)
-        └──→ ~/example_project/.agents/skills/data-analysis   (symlink)
-```
-
-- `~/.kitty/` is a standard git repository where all skills are stored.
-- Each provider directory contains symlinks, not file copies.
-- Modify any location, and all providers see the update immediately—no manual synchronization needed.
-- Provider paths defaults to **workspace relative paths** (`.claude/skills`). Just run commands in your project directory.
-
-`kitty sync` does not exist: the symlink architecture makes the "who syncs with whom" problem disappear at the structural level.
-
----
+1. Single source of truth: `~/.kitty/skills/<skill>/`
+2. Distribute by copy: `kitty distribute <skill>`
+3. Track consistency via `kitty status`
 
 ## Installation
 
-### Prerequisites
+Prerequisites:
 
 - Python 3.9+
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) (Recommended) or pip
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
-### Install with uv (Recommended)
-
-Install directly from GitHub:
+Install from source:
 
 ```bash
-uv tool install git+https://github.com/qingyang-paul/kitty.git
-```
-
-Or clone and install locally:
-
-```bash
-git clone https://github.com/qingyang-paul/kitty.git ~/kitty
-cd ~/kitty
 uv tool install .
 ```
 
-### Add to PATH
+If needed, ensure `~/.local/bin` is in `PATH`.
 
-`uv tool install` places executables in `~/.local/bin/`. If the `kitty` command is not found, add this line to your shell configuration:
-
-```bash
-# ~/.zshrc or ~/.bashrc
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Then reload:
+## Commands
 
 ```bash
-source ~/.zshrc   # or source ~/.bashrc
-```
-
-Verify installation:
-
-```bash
-kitty --help
-```
-
-### Shell Tab Completion (Optional)
-
-kitty supports tab completion for skill names and provider names.
-
-**zsh**
-```bash
-mkdir -p ~/.zfunc
-_KITTY_COMPLETE=zsh_source kitty > ~/.zfunc/_kitty
-echo 'fpath=(~/.zfunc $fpath)' >> ~/.zshrc
-echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
-source ~/.zshrc
-```
-
-**bash**
-```bash
-mkdir -p ~/.bash_completion.d
-_KITTY_COMPLETE=bash_source kitty > ~/.bash_completion.d/kitty
-echo '[[ -f ~/.bash_completion.d/kitty ]] && source ~/.bash_completion.d/kitty' >> ~/.bashrc
-source ~/.bashrc
-```
-
-**fish**
-```bash
-_KITTY_COMPLETE=fish_source kitty > ~/.config/fish/completions/kitty.fish
-```
-
-> **Note**: macOS comes with a terminal emulator also named `kitty`. If a conflict occurs, place `~/.local/bin` at the front of your PATH (as shown above), or rename the entry point of this tool to `sk` (by modifying `[project.scripts]` in `pyproject.toml`).
-
----
-
-### Updating the Tool
-
-#### Installed via GitHub
-
-Simply run:
-```bash
-uv tool upgrade kitty
-```
-
-#### Installed from Local Source
-
-Navigate to the cloned directory and run the install command:
-
-```bash
-# Enter directory and pull latest code
-cd ~/kitty
-git pull
-
-# Reinstall (--force to overwrite existing version)
-uv tool install . --force
-```
-
-Single line command:
-
-```bash
-cd ~/kitty && git pull && uv tool install . --force
-```
-
----
-
-## Quick Start
-
-### Step 1: Initialize Global Store (Once per machine)
-
-```bash
-kitty init --global
-```
-
-Creates `~/.kitty/` (git repo), default `config.json`, and `.kittyignore`.
-
-### Step 2: Initialize Workspace in Project
-
-```bash
-cd ~/example_project
 kitty init
-```
-
-Creates `.kitty/config.json` and prepares skill directories for Claude and Gemini in the project folder.
-
-### Step 3: Create or Migrate a Skill
-
-**Create a new skill (from your project directory):**
-```bash
-cd ~/example_project
-kitty new data-analysis
-# → Creates SKILL.md boilerplate in ~/.kitty/skills/data-analysis/
-# → Automatically creates symlinks in .claude/skills/ and .agents/skills/
-# → Automatically performs a git commit
-```
-
-**Migrate an existing directory (from your project directory):**
-```bash
-cd ~/example_project
-# If .claude/skills/data-analysis/ is already a real directory
-kitty migrate data-analysis
-# → Moves it to ~/.kitty/skills/ and commits
-# → Replaces original directory with a symlink
-# → Creates symlinks for other providers automatically
-```
-
-> `migrate` and all commands involving symlinks must be executed in the project root because provider paths are workspace-relative by default.
-
----
-
-## Command Reference
-
-### Initialization
-
-```bash
-kitty init --global          # Initialize ~/.kitty/ global store (Once per machine)
-kitty init                   # Initialize current workspace (Idempotent, run in project root)
-```
-
-### Skill Management
-
-```bash
-kitty new <skill>            # Create new skill and link to all providers
-kitty link [<skill>]              # Create symlinks for an existing skill
-  --provider claude|gemini|codex  # Link only to a specific provider
-  --force                         # Overwrite incorrect symlinks
-kitty unlink <skill>              # Remove symlinks (does not delete the skill itself)
-  --provider claude|gemini|codex  # Uninstall only from a specific provider
-kitty migrate <skill>             # Migrate a real directory to global store (run in project root)
-  --from claude|gemini|codex      # Specify authoritative source if providers differ
-```
-
-### Inspection
-
-```bash
-kitty status [<skill>]       # Three-way status: local changes / symlink health / remote diff
-kitty list [local|remote]    # List all skills locally or on remote
-```
-
-### Multi-machine Sync (Requires remote config)
-
-```bash
-kitty fetch [<skill>]        # Fetch remote latest refs without modifying worktree
-kitty checkout <skill>       # Overwrite local with remote version (destructive, auto-snapshot)
-kitty push [<skill>]         # Commit local changes and push to remote
-  --force                    # Force push to remote (uses --force-with-lease)
-kitty clone <skill>          # Clone skill from remote for the first time and link to workspace
-```
-
----
-
-## Typical Workflow
-
-### Daily Iteration
-
-```bash
-cd ~/example_project
-
-# Edit skill in any editor
-vim ~/.kitty/skills/data-analysis/SKILL.md
-# Or modify through Claude/Gemini UI — changes are reflected in ~/.kitty/ via symlink
-
-# Check status
+kitty new <skill> [-f path/to/xx.md]
+kitty migrate path/to/skill_dir
+kitty edit <skill> [typora|antigravity]
+kitty distribute <skill>
 kitty status
-# ~/.kitty global store:
-#   data-analysis   modified (SKILL.md)
-# Workspace symlinks:
-#   data-analysis   claude:✓  gemini:✓
-# Remote: 1 unpushed commit
-
-# Commit and Push
-kitty push data-analysis
-# Committed 'data-analysis' [example_project] 2026-03-25T10:31:44Z
-# Pushed to origin/main ✓
+kitty list
 ```
 
-### Fetching Skills on a New Machine
+### `kitty init`
 
-```bash
-kitty init --global
-# Configure remote (edit ~/.kitty/config.json, set "remote": "git@github.com:...")
+- Idempotent global initialization.
+- Ensures `~/.kitty` exists and contains required files:
+  - `.kittyignore`
+  - `config.json`
+  - `manifest.yaml`
+  - `skills/`
+- Also ensures provider directories exist under home.
 
-cd ~/another_example_project
-kitty init
-kitty clone data-analysis
-# Cloned 'data-analysis' from remote.
-# Linked [claude, gemini]
-```
+### `kitty new <skill>`
 
-### When Remote has Updates
+- Creates `~/.kitty/skills/<skill>/SKILL.md`
+- Optional: `-f path/to/xx.md` to use the file content as `SKILL.md`
+- Updates `manifest.yaml`
+- Skill name rule: lowercase letters, digits, and `-` only.
 
-```bash
-kitty fetch
-# data-analysis   remote 2 commit(s) ahead → `kitty checkout data-analysis`
+### `kitty migrate path/to/skill_dir`
 
-kitty checkout data-analysis
-# Auto-snapshot: committing 1 uncommitted file(s) before overwrite...
-# Updated 'data-analysis' (2 commit(s) applied).
-# All provider symlinks updated automatically.
-```
+- Imports an existing skill directory into `~/.kitty/skills/`
+- Uses source directory name as skill name
+- If a skill with the same name already exists in kitty, it prints a warning and skips overwrite
 
-### Handling Push Conflicts
+### `kitty edit <skill> [typora|antigravity]`
 
-```bash
-kitty push data-analysis
-# Push rejected: remote has divergent changes.
-# --- Diff (remote vs local) ---
-# ...
-# Options:
-#   kitty push --force data-analysis   Overwrite remote
-#   kitty checkout data-analysis       Discard local, use remote version
-```
+- Opens `~/.kitty/skills/<skill>` in your editor.
+- If editor arg is omitted, uses `default_editor` from `config.json`.
 
----
+### `kitty distribute <skill>`
 
-## Configuration
+- Copies canonical skill folder from `~/.kitty/skills/<skill>` to all providers.
+- No provider selection flag in this version.
+- Updates distribution hashes in `manifest.yaml`.
 
-### Global Configuration `~/.kitty/config.json`
+### `kitty status`
 
-```json
-{
-  "version": 1,
-  "remote": "git@github.com:yourname/skills.git",
-  "providers": {
-    "claude": ".claude/skills",
-    "gemini": ".agents/skills",
-    "codex":  ".codex/skills"
-  },
-  "default_providers": ["claude", "gemini", "codex"],
-  "commit_author": { "name": "kitty", "email": "kitty@local" }
-}
-```
+Shows:
 
-- `remote: null` — Offline mode, all network operations are skipped gracefully.
-- Provider paths support three formats:
-  - `.claude/skills` — Workspace relative (Default, run in project root).
-  - `~/...` — Home relative (Globally shared, skills visible to all projects).
-  - `/absolute/path` — Absolute path.
+- `SYNCED`: whether the skill is currently synced across all providers
+- `PENDING_SYNC`: whether canonical content changed since last distribute
+  - `yes`: modified but not distributed
+  - `no`: no undistributed canonical change
+- `LAST_MODIFIED`: latest local modification time under canonical skill directory
+- Per-provider state:
+  - `synced`
+  - `changed`
+  - `missing`
+  - `invalid`
 
-### Workspace Configuration `.kitty/config.json`
+## Default Layout
 
-```json
-{
-  "version": 1,
-  "providers": ["claude"]
-}
-```
-
-Overrides enabled providers for the current workspace (Inherits global `default_providers` if empty).
-
-### `.kittyignore`
-
-Uses same syntax as `.gitignore` to control which files are not tracked by kitty:
-
-```
-*.log
-.DS_Store
-node_modules/
-.env
-```
-
----
-
-## Safety Mechanisms
-
-**Auto-Snapshot Before Destructive Operations**
-
-Before running `kitty checkout` (overwriting local), if there are uncommitted local changes, kitty automatically creates a commit to ensure a recovery point is available in git reflog.
-
-**Recovering from Mistakes**
-
-```bash
-git -C ~/.kitty reflog                                        # View history anchors
-git -C ~/.kitty checkout <hash> -- skills/data-analysis/      # Restore to specific version
-```
-
-**Auto-Diff Before Push**
-
-When a `kitty push` is rejected by the remote, it automatically fetches and displays the differences, avoiding silent overwrites of others' work.
-
----
-
-## Project Structure
-
-```
+```text
 ~/.kitty/
-├── .git/                 # Standard git repository
-├── skills/
-│   ├── data-analysis/
-│   │   └── SKILL.md
-│   └── trading-bot/
-│       └── SKILL.md
 ├── .kittyignore
-└── config.json
+├── config.json
+├── manifest.yaml
+└── skills/
+    └── <skill>/
+        └── SKILL.md
+
+~/.claude/skills/
+~/.agents/skills/
+~/.codex/skills/
 ```
 
-```
-~/example_project/
-├── .kitty/
-│   └── config.json       # Workspace-level provider override (Optional)
-├── .kittyignore
-├── .claude/
-│   └── skills/
-│       └── data-analysis  →  ~/.kitty/skills/data-analysis
-└── .agents/
-    └── skills/
-        └── data-analysis  →  ~/.kitty/skills/data-analysis
-```
+## Notes
+
+- `manifest.yaml` is used as the skill index/state file.
+- To override workspace path for testing/migration, you can still use:
+  - `--workspace <path>`
+  - `KITTY_WORKSPACE=<path>`
